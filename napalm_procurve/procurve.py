@@ -683,25 +683,27 @@ class ProcurveDriver(NetworkDriver):
 
         for line in output.splitlines():
             # Example:  1              DEFAULT_VLAN Port-based   No    No
+            if len(line.strip().split()) == 0:
+                continue
             vlan_id = line.strip().split()[0]
 
             command = 'show mac-address vlan ' + str(vlan_id)
-            output = self._send_command(command)
+            output2 = self._send_command(command)
 
             if 'Invalid input' in output:
                 raise ValueError("Command not supported by network device")
 
             try:
-                output = re.split(r'^  -----.*$', output,
+                output2 = re.split(r'^  -----.*$', output2,
                                   flags=re.M)[1].strip()
             except IndexError:
                 continue
 
-            for line in output.splitlines():
+            for line2 in output2.splitlines():
                 try:
-                  mac, port = line.split()
+                  mac, port = line2.split()
                 except IndexError:
-                    raise ValueError("Unexpected output from: {}".format(line))
+                    raise ValueError("Unexpected output from: {}".format(line2))
 
                 entry = {
                     'mac': napalm.base.helpers.mac(mac),
